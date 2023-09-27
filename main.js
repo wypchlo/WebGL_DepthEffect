@@ -1,3 +1,4 @@
+/*
 const vertexShaderText = 
 [`
   precision mediump float;
@@ -78,3 +79,12 @@ function main()
 }
 
 main();
+*/
+
+const main = () => {
+  let image = new Image();
+  image.src = "http://Images/";
+  image.onload = () => {
+    render(image);
+  }
+}
