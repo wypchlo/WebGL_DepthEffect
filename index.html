@@ -4,12 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WebGL tests</title>
+    <link rel="stylesheet" href="style.css">
     <script src="main.js" defer></script>
 </head>
 <body>
     <canvas></canvas>
     <script type="module" src="/main.js"></script>
+    <script src="https://webglfundamentals.org/webgl/resources/webgl-utils.js"></script>
 
+
+    <!-- SHADERS -->
     <script  id="vertexShader" type="x-shader/x-vertex">
         attribute vec2 a_position;
         attribute vec2 a_texCoord;
@@ -35,6 +39,7 @@
            v_texCoord = a_texCoord;
         }
     </script>
+
     <script  id="fragmentShader" type="x-shader/x-fragment">
         precision mediump float;
         
@@ -48,7 +53,5 @@
            gl_FragColor = texture2D(u_image, v_texCoord);
         }
     </script>
-
-    <script src="https://webglfundamentals.org/webgl/resources/webgl-utils.js"></script>
 </body>
 </html>

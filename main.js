@@ -3,7 +3,7 @@
 function main() 
 {
     let image = new Image();
-    image.src = "Images/leaves.jpg";
+    image.src = "Images/cc3.png";
     image.onload = function() 
     {
         render(image);
@@ -11,10 +11,10 @@ function main()
 }
 
 function setRectangle(gl, x, y, width, height) {
-    var x1 = x;
-    var x2 = x + width;
-    var y1 = y;
-    var y2 = y + height;
+    const x1 = x;
+    const y1 = y;
+    const x2 = x + width;
+    const y2 = y + height;
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
         x1, y1,
         x2, y1,
@@ -41,7 +41,7 @@ function render(image)
     // Create a buffer to put three 2d clip space points in
     var positionBuffer = gl.createBuffer();
 
-        // Bind it to ARRAY_BUFFER (think of it as ARRAY_BUFFER = positionBuffer)
+    // Bind it to ARRAY_BUFFER (think of it as ARRAY_BUFFER = positionBuffer)
     gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
     // Set a rectangle the same size as the image.
     setRectangle(gl, 0, 0, image.width, image.height);
