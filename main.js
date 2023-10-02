@@ -8,13 +8,10 @@ function setSize() {
 }
 
 function main() {
-  // Get A WebGL context
-  /** @type {HTMLCanvasElement} */
   const canvas = document.getElementById("canvas");
   const gl = canvas.getContext("webgl");
-  if (!gl) {
+  if (!gl)
     return;
-  }
 
   setSize(canvas);
 
