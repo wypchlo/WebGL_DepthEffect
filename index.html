@@ -1,51 +1,56 @@
 <!DOCTYPE html>
-<html lang="PL-pl">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WebGL tests</title>
     <link rel="stylesheet" href="style.css">
-    <script src="main.js" defer></script>
+    <title>Document</title>
 </head>
 <body>
-    <canvas></canvas>
-    <script type="module" src="/main.js"></script>
-    <script src="https://webglfundamentals.org/webgl/resources/webgl-utils.js"></script>
+    <canvas id="canvas"></canvas>
 
+    <!-- vertex shader -->
+    <script id="vs" type="x-shader/x-vertex">
+        attribute vec2 position;
+        attribute vec2 texcoord;
 
-    <!-- SHADERS -->
-    
-    <script  id="vertexShader" type="x-shader/x-vertex">
-
-        attribute vec2 a_position;
-        attribute vec2 a_texCoord;
-        
         uniform vec2 u_resolution;
-        
-        varying vec2 v_texCoord;
-        
+
+        varying vec2 v_texcoord;
+
         void main() {
-           vec2 clipSpace = a_position / u_resolution * 2.0 - 1.0;
-
-           gl_Position = vec4(clipSpace * vec2(1, -1), 0, 1);
-        
-           v_texCoord = a_texCoord;
+            vec2 zeroToOne = position / u_resolution;
+            vec2 zeroToTwo = zeroToOne * 2.0;
+            vec2 clipSpace = zeroToTwo - 1.0;
+            gl_Position = vec4(position * vec2(1, -1), 0, 1);
+            v_texcoord = texcoord;
         }
-
     </script>
 
-    <script  id="fragmentShader" type="x-shader/x-fragment">
-
+    <!-- fragment shader -->
+    <script id="fs" type="x-shader/x-fragment">
         precision mediump float;
-        
-        uniform sampler2D u_image;
-        
-        varying vec2 v_texCoord;
-        
-        void main() {
-           gl_FragColor = texture2D(u_image, v_texCoord);
-        }
 
+        uniform vec2 u_mouse;
+
+        uniform sampler2D u_originalImage;
+
+        varying vec2 v_texcoord;
+
+        void main() {
+            vec2 texCoord = v_texcoord * vec2(1, .5);
+            vec2 parallax = (u_mouse) * vec2(-1, -1);
+            vec4 depthDistortion = texture2D(u_originalImage, texCoord + vec2(0, .5) + parallax);
+            float parallaxMult = depthDistortion.r;
+
+            parallax = parallax * parallaxMult;
+
+            gl_FragColor = texture2D(u_originalImage, (texCoord + parallax));
+        }
     </script>
+
+    <script src="https://cdn.rawgit.com/greggman/twgl.js/master/dist/4.x/twgl-full.min.js"></script>
+    <script src="https://webglfundamentals.org/webgl/resources/m3.js"></script>
+    <script src="main.js"></script>
 </body>
 </html>
