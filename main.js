@@ -1,92 +1,85 @@
 "use strict";
 
-function setRectangle(gl, x, y, width, height) {
-    const x1 = x;
-    const y1 = y;
-    const x2 = x + width;
-    const y2 = y + height;
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
-        x1, y1,
-        x2, y1,
-        x1, y2,
-        x1, y2,
-        x2, y1,
-        x2, y2,
-    ]), gl.STATIC_DRAW);
+const resolution = [window.innerHeight / 9 * 16, window.innerHeight];
+
+function setSize() {
+    canvas.width = resolution[0];
+    canvas.height = resolution[1];
 }
 
-function render(gl, image)
-{
-    const program = webglUtils.createProgramFromScripts(gl, ["vertexShader", "fragmentShader"]);
+function main() {
+  // Get A WebGL context
+  /** @type {HTMLCanvasElement} */
+  const canvas = document.getElementById("canvas");
+  const gl = canvas.getContext("webgl");
+  if (!gl) {
+    return;
+  }
 
-    const positionBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-    setRectangle(gl, 0, 0, image.width, image.height);
+  setSize(canvas);
 
-    const texcoordBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, texcoordBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
-        0.0,  0.0,
-        1.0,  0.0,
-        0.0,  1.0,
-        0.0,  1.0,
-        1.0,  0.0,
-        1.0,  1.0,
-    ]), gl.STATIC_DRAW);
+  let originalImage = { width: 1, height: 1 }; // replaced after loading
+  const originalTexture = twgl.createTexture(gl, {
+    src: "Images/cc_landscape - 2.png", 
+    crossOrigin: '',
+  }, (err, texture, source) => {
+    originalImage = source;
+  });
 
-    const texture = gl.createTexture();
-    gl.bindTexture(gl.TEXTURE_2D, texture);
+  // compile shaders, link program, lookup location
+  const programInfo = twgl.createProgramInfo(gl, ["vs", "fs"]);
 
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+  // calls gl.createBuffer, gl.bindBuffer, gl.bufferData for a quad
+  const bufferInfo = twgl.primitives.createXYQuadBufferInfo(gl);
 
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+  const mouse = [0, 0];
+  document.addEventListener('mousemove', (event) => {
+    mouse[0] = (event.clientX / gl.canvas.clientWidth  * 2 - 1) * -0.02;
+    mouse[1] = (event.clientY / gl.canvas.clientHeight * 2 - 1) * -0.02;
+  });
+	
+	document.addEventListener('touchmove', (event) => {
+    mouse[0] = (event.touches[0].clientX / gl.canvas.clientWidth  * 2 - 1) * -0.02;
+    mouse[1] = (event.touches[0].clientY / gl.canvas.clientHeight * 2 - 1) * -0.02;
+  });
+	
+	document.addEventListener('touchend', (event) => {
+    mouse[0] = 0;
+    mouse[1] = 0;
+  });
+	
+	var nMouse = [0, 0];
+	var oMouse = [0, 0];
 
-    const resolutionLocation = gl.getUniformLocation(program, "u_resolution");
-
-    webglUtils.resizeCanvasToDisplaySize(gl.canvas);
-
-    gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
-
-    gl.useProgram(program);
-
-    const sets = [
-        2, //size
-        gl.FLOAT, //type
-        false, //normalize
-        0, //stride
-        0 //offset 
-    ]
-
-    const positionLocation = gl.getAttribLocation(program, "a_position");
-    const texcoordLocation = gl.getAttribLocation(program, "a_texCoord");
-
-    gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-    gl.enableVertexAttribArray(positionLocation);
-    gl.vertexAttribPointer(positionLocation, sets[0], sets[1], sets[2], sets[3], sets[4]);
-
-    gl.bindBuffer(gl.ARRAY_BUFFER, texcoordBuffer);
-    gl.enableVertexAttribArray(texcoordLocation);
-    gl.vertexAttribPointer(texcoordLocation, sets[0], sets[1], sets[2], sets[3], sets[4]);
+    twgl.resizeCanvasToDisplaySize(gl.canvas);
+    requestAnimationFrame(render);
+  
+  function render() {
+    gl.viewport(0, 0, resolution[0], resolution[1]);
 
     gl.clearColor(0, 0, 0, 0);
     gl.clear(gl.COLOR_BUFFER_BIT);
 
-    gl.uniform2f(resolutionLocation, gl.canvas.width, gl.canvas.height);
-    gl.drawArrays(gl.TRIANGLES, 0, 6);
-}
+    gl.useProgram(programInfo.program);
 
-function main() 
-{
-    const canvas = document.querySelector("canvas");
-    const gl = canvas.getContext("webgl");
-    if (!gl) console.error("Browser doesn't support WebGL");
-
-    const image = new Image();
-    image.src = "Images/cc_landscape - 2.png";
-    image.onload = () => { render(gl, image); } 
+    // calls gl.bindBuffer, gl.enableVertexAttribArray, gl.vertexAttribPointer
+    twgl.setBuffersAndAttributes(gl, programInfo, bufferInfo);
+		
+		nMouse[0] += (mouse[0] - nMouse[0]) * 0.02;
+		nMouse[1] += (mouse[1] - nMouse[1]) * 0.02;
+			
+    // calls gl.activeTexture, gl.bindTexture, gl.uniformXXX
+    twgl.setUniforms(programInfo, {
+      u_originalImage: originalTexture,
+      u_mouse: nMouse,
+      u_resolution: resolution
+    });
+		
+    // calls gl.drawArrays or gl.drawElements
+    twgl.drawBufferInfo(gl, bufferInfo);
+    
+    requestAnimationFrame(render);
+  }
 }
 
 main();
