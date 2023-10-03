@@ -7,10 +7,11 @@
     <title>Document</title>
 </head>
 <body>
-    <div id="positionVisualizer"></div>
+    <div id="positionVisualizer">
+        <div></div>
+    </div>
     <canvas id="canvas"></canvas>
 
-    <!-- vertex shader -->
     <script id="vertexShader" type="x-shader/x-vertex">
         attribute vec2 position;
         attribute vec2 texcoord;
@@ -28,7 +29,6 @@
         }
     </script>
 
-    <!-- fragment shader -->
     <script id="fragmentShader" type="x-shader/x-fragment">
         precision mediump float;
 

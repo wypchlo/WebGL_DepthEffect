@@ -1,12 +1,20 @@
 body{
     margin: 0px;
+    overflow: hidden;
 }
 
 #positionVisualizer{
     position: absolute;
-    padding: 20px;
     width: 1px;
     height: 1px;
     background-color: black;
-    border-radius: 20px;
+}
+
+#positionVisualizer div{
+    position: relative;
+    bottom: 10px;
+    right: 10px;
+    padding: 10px;
+    border-radius: 10px;
+    background-color: black;
 }

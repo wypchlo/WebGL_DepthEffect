@@ -30,8 +30,8 @@ function main() {
 
     const mouse = [0, 0];
     document.addEventListener('mousemove', (event) => {
-        mouse[0] = (event.clientX / gl.canvas.clientWidth  * 2 - 1) * -0.02;
-        mouse[1] = (event.clientY / gl.canvas.clientHeight * 2 - 1) * -0.02;
+        mouse[0] = (event.clientX / resolution[0]  * 2 - 1) * -0.02;
+        mouse[1] = (event.clientY / resolution[1] * 2 - 1) * -0.02;
     });
         
     let nMouse = [0, 0];
@@ -64,8 +64,6 @@ function main() {
 
         requestAnimationFrame(render);
     }
-
-    //this mouse is fucked up bruh
 }
 
 main();
