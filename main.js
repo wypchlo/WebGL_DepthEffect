@@ -64,6 +64,8 @@ function main() {
 
         requestAnimationFrame(render);
     }
+
+    //this mouse is fucked up bruh
 }
 
 main();
