@@ -1,3 +1,11 @@
 body{
     margin: 0px;
 }
+
+#positionVisualizer{
+    position: absolute;
+    padding: 20px;
+    width: 1px;
+    height: 1px;
+    background-color: black;
+}
