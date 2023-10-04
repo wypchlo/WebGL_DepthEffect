@@ -32,21 +32,21 @@
     <script id="fragmentShader" type="x-shader/x-fragment">
         precision mediump float;
 
-        uniform vec2 u_mouse;
+        uniform vec2 u_offset;
 
         uniform sampler2D u_originalImage;
 
         varying vec2 v_texcoord;
 
         void main() {
-            vec2 texCoord = v_texcoord * vec2(1, .5);
-            vec2 parallax = (u_mouse) * vec2(-1, -1);
-            vec4 depthDistortion = texture2D(u_originalImage, texCoord + vec2(0, .5) + parallax);
+            vec2 transformedTexCoord = v_texcoord * vec2(1, .5);
+            vec2 parallax = (u_offset);
+            vec4 depthDistortion = texture2D(u_originalImage, transformedTexCoord + vec2(0, .5) + parallax);
             float parallaxMult = depthDistortion.r;
 
             parallax = parallax * parallaxMult;
 
-            gl_FragColor = texture2D(u_originalImage, (texCoord + parallax));
+            gl_FragColor = texture2D(u_originalImage, (transformedTexCoord + parallax));
         }
     </script>
 

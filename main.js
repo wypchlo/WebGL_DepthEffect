@@ -1,30 +1,30 @@
 "use strict";
 
-const obj = document.querySelector("#positionVisualizer");
+function createVector2(x, y){
+    return {x: x, y: y};
+}
 
+const resolution = createVector2(window.innerHeight / 9 * 16, window.innerHeight);
+let offset = createVector2(window.innerWidth / 2, window.innerHeight / 2)
+let depthOffset = createVector2(window.innerWidth / 2, window.innerHeight / 2);
+let mousePos = createVector2(0, 0);
+const depthOffsetStrength = 1.5;
+
+/*
 const posVisualizer = {
     el: document.querySelector("#positionVisualizer"),
-    x: window.innerWidth / 2,
-    y: window.innerHeight / 2,
+    x: offset.x,
+    y: offset.y,
     update:function(){
         this.el.style.left = `${this.x}px`;
         this.el.style.top = `${this.y}px`;
     }
 };
-
-const resolution = {
-    x: window.innerHeight / 9 * 16, 
-    y: window.innerHeight
-};
+*/
 
 function lerp(start, end, amt){
     return (1 - amt) * start + amt * end
-  }
-
-let mousePos = {
-    x: 0, 
-    y: 0
-};
+}
 
 function setSize() {
     canvas.width = resolution.x;
@@ -32,9 +32,13 @@ function setSize() {
 }
 
 function mouseRender(){
-    posVisualizer.x = lerp(posVisualizer.x, mousePos.x, 0.1);
-    posVisualizer.y = lerp(posVisualizer.y, mousePos.y, 0.1);
-    posVisualizer.update();
+    offset.x = lerp(offset.x, mousePos.x, 0.1);
+    offset.y = lerp(offset.y, mousePos.y, 0.1);
+    depthOffset.x = (offset.x / resolution.x - 1) * (depthOffsetStrength / 100);
+    depthOffset.y = (offset.y / resolution.y - 1) * (depthOffsetStrength / 100);
+    //posVisualizer.x = offset.x;
+    //posVisualizer.y = offset.y;
+    //posVisualizer.update();
 }
 
 function main() {
@@ -57,18 +61,10 @@ function main() {
     const programInfo = twgl.createProgramInfo(gl, ["vertexShader", "fragmentShader"]);
     const bufferInfo = twgl.primitives.createXYQuadBufferInfo(gl);
 
-    const mouse = [0, 0];
     document.addEventListener('mousemove', (event) => {
         mousePos.x = event.clientX;
         mousePos.y = event.clientY;
-        mouse[0] = (event.clientX / resolution.x  * 2 - 1) * -0.02;
-        mouse[1] = (event.clientY / resolution.y * 2 - 1) * -0.02;
     });
-
-    setInterval (mouseRender, 1000/60)
-        
-    let nMouse = [0, 0];
-    let oMouse = [0, 0];
 
     twgl.resizeCanvasToDisplaySize(gl.canvas);
     gl.viewport(0, 0, resolution.x, resolution.y);
@@ -83,16 +79,13 @@ function main() {
         u_resolution: resolution
     });
 
+    setInterval (mouseRender, 1000 / 60);
     requestAnimationFrame(render);
     
     function render() {
         twgl.setBuffersAndAttributes(gl, programInfo, bufferInfo);
-            nMouse[0] += (mouse[0] - nMouse[0]) * 0.02;
-            nMouse[1] += (mouse[1] - nMouse[1]) * 0.02;
-
-        twgl.setUniforms(programInfo, { u_mouse: nMouse, });
+        twgl.setUniforms(programInfo, { u_offset: [depthOffset.x, depthOffset.y], });
         twgl.drawBufferInfo(gl, bufferInfo);
-
         requestAnimationFrame(render);
     }
 }
