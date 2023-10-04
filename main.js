@@ -1,39 +1,40 @@
 "use strict";
 
-const posVisualizer = document.querySelector("#positionVisualizer");
-const resolution = [window.innerHeight / 9 * 16, window.innerHeight];
+const obj = document.querySelector("#positionVisualizer");
 
-function lerp (start, end, amt){
+const posVisualizer = {
+    el: document.querySelector("#positionVisualizer"),
+    x: window.innerWidth / 2,
+    y: window.innerHeight / 2,
+    update:function(){
+        this.el.style.left = `${this.x}px`;
+        this.el.style.top = `${this.y}px`;
+    }
+};
+
+const resolution = {
+    x: window.innerHeight / 9 * 16, 
+    y: window.innerHeight
+};
+
+function lerp(start, end, amt){
     return (1 - amt) * start + amt * end
   }
 
-function normalizeVector2(a, b){
-    let greater
-    if (Math.abs(a) > Math.abs(b))
-        greater = Math.abs(a);
-    else if (Math.abs(a) < Math.abs(b))
-        greater = Math.abs(b);
-    else
-        return [a, b]
-    return [a / greater, b / greater];
-}
-
-let visPos = [0, 0];
-let prevMouse = [0, 0];
-let testMouse = [0, 0];
+let mousePos = {
+    x: 0, 
+    y: 0
+};
 
 function setSize() {
-    canvas.width = resolution[0];
-    canvas.height = resolution[1];
+    canvas.width = resolution.x;
+    canvas.height = resolution.y;
 }
 
 function mouseRender(){
-    let vector = normalizeVector2(testMouse[0] - visPos[0], testMouse[1] - visPos[1]);
-    visPos[0] += vector[0];
-    visPos[1] += vector[1];
-    prevMouse = testMouse;
-    posVisualizer.style.left = visPos[0] + "px";
-    posVisualizer.style.top = visPos[1] + "px";
+    posVisualizer.x = lerp(posVisualizer.x, mousePos.x, 0.1);
+    posVisualizer.y = lerp(posVisualizer.y, mousePos.y, 0.1);
+    posVisualizer.update();
 }
 
 function main() {
@@ -58,9 +59,10 @@ function main() {
 
     const mouse = [0, 0];
     document.addEventListener('mousemove', (event) => {
-        testMouse = [event.clientX, event.clientY];
-        mouse[0] = (event.clientX / resolution[0]  * 2 - 1) * -0.02;
-        mouse[1] = (event.clientY / resolution[1] * 2 - 1) * -0.02;
+        mousePos.x = event.clientX;
+        mousePos.y = event.clientY;
+        mouse[0] = (event.clientX / resolution.x  * 2 - 1) * -0.02;
+        mouse[1] = (event.clientY / resolution.y * 2 - 1) * -0.02;
     });
 
     setInterval (mouseRender, 1000/60)
@@ -69,7 +71,7 @@ function main() {
     let oMouse = [0, 0];
 
     twgl.resizeCanvasToDisplaySize(gl.canvas);
-    gl.viewport(0, 0, resolution[0], resolution[1]);
+    gl.viewport(0, 0, resolution.x, resolution.y);
 
     gl.clearColor(0, 0, 0, 0);
     gl.clear(gl.COLOR_BUFFER_BIT);
