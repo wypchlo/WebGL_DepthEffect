@@ -34,8 +34,8 @@ function setSize() {
 function mouseRender(){
     offset.x = lerp(offset.x, mousePos.x, 0.1);
     offset.y = lerp(offset.y, mousePos.y, 0.1);
-    depthOffset.x = (offset.x / resolution.x - 1) * (depthOffsetStrength / 100);
-    depthOffset.y = (offset.y / resolution.y - 1) * (depthOffsetStrength / 100);
+    depthOffset.x = (offset.x / resolution.x - .5) * (depthOffsetStrength / 100);
+    depthOffset.y = (offset.y / resolution.y - .5) * (depthOffsetStrength / 100);
     //posVisualizer.x = offset.x;
     //posVisualizer.y = offset.y;
     //posVisualizer.update();
