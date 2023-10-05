@@ -2,19 +2,3 @@ body{
     margin: 0px;
     overflow: hidden;
 }
-
-#positionVisualizer{
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    background-color: black;
-}
-
-#positionVisualizer div{
-    position: relative;
-    bottom: 10px;
-    right: 10px;
-    padding: 10px;
-    border-radius: 10px;
-    background-color: black;
-}

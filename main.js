@@ -10,25 +10,13 @@ let depthOffset = createVector2(window.innerWidth / 2, window.innerHeight / 2);
 let mousePos = createVector2(0, 0);
 const depthOffsetStrength = 1.5;
 
-/*
-const posVisualizer = {
-    el: document.querySelector("#positionVisualizer"),
-    x: offset.x,
-    y: offset.y,
-    update:function(){
-        this.el.style.left = `${this.x}px`;
-        this.el.style.top = `${this.y}px`;
-    }
-};
-*/
+document.addEventListener('mousemove', (event) => {
+    mousePos.x = event.clientX;
+    mousePos.y = event.clientY;
+});
 
 function lerp(start, end, amt){
     return (1 - amt) * start + amt * end
-}
-
-function setSize() {
-    canvas.width = resolution.x;
-    canvas.height = resolution.y;
 }
 
 function mouseRender(){
@@ -36,58 +24,74 @@ function mouseRender(){
     offset.y = lerp(offset.y, mousePos.y, 0.1);
     depthOffset.x = (offset.x / resolution.x - .5) * (depthOffsetStrength / 100);
     depthOffset.y = (offset.y / resolution.y - .5) * (depthOffsetStrength / 100);
-    //posVisualizer.x = offset.x;
-    //posVisualizer.y = offset.y;
-    //posVisualizer.update();
 }
 
-function main() {
-    const canvas = document.getElementById("canvas");
-    const gl = canvas.getContext("webgl");
-    if (!gl)
-        return;
 
-    setSize(canvas);
+class imageCanvas 
+{
+    constructor(imagePath, container){
+        this.imagePath = imagePath,
+        this.container = container
+    }
 
-    let originalImage = { width: 1, height: 1 };
+    create(){
+        this.canvas = document.createElement("canvas");
+        this.container.appendChild(this.canvas);
+    }
 
-    const originalTexture = twgl.createTexture(gl, {
-        src: "Images/cc_landscape - 2.png", 
-        crossOrigin: '',
-    }, (err, texture, source) => {
-        originalImage = source;
-    });
+    setSize() {
+        this.canvas.width = resolution.x;
+        this.canvas.height = resolution.y;
+    }
 
-    const programInfo = twgl.createProgramInfo(gl, ["vertexShader", "fragmentShader"]);
-    const bufferInfo = twgl.primitives.createXYQuadBufferInfo(gl);
+    initializeWebGL(){
+        this.gl = this.canvas.getContext("webgl");
+        if (!this.gl)
+            console.error("WEBGL NOT SUPPORTED");
+    }
 
-    document.addEventListener('mousemove', (event) => {
-        mousePos.x = event.clientX;
-        mousePos.y = event.clientY;
-    });
-
-    twgl.resizeCanvasToDisplaySize(gl.canvas);
-    gl.viewport(0, 0, resolution.x, resolution.y);
-
-    gl.clearColor(0, 0, 0, 0);
-    gl.clear(gl.COLOR_BUFFER_BIT);
-
-    gl.useProgram(programInfo.program);
-
-    twgl.setUniforms(programInfo, {
-        u_originalImage: originalTexture,
-        u_resolution: resolution
-    });
-
-    setInterval (mouseRender, 1000 / 60);
-    requestAnimationFrame(render);
+    main(){
+        this.create();
+        this.initializeWebGL();
+        this.setSize();
     
-    function render() {
-        twgl.setBuffersAndAttributes(gl, programInfo, bufferInfo);
-        twgl.setUniforms(programInfo, { u_offset: [depthOffset.x, depthOffset.y], });
-        twgl.drawBufferInfo(gl, bufferInfo);
+        const gl = this.gl;
+        const programInfo = twgl.createProgramInfo(gl, ["vertexShader", "fragmentShader"]);
+        const bufferInfo = twgl.primitives.createXYQuadBufferInfo(gl);
+    
+        let originalImage = { width: 1, height: 1 };
+        const originalTexture = twgl.createTexture(gl, {
+            src: this.imagePath, 
+            crossOrigin: '',
+        }, (err, texture, source) => {
+            originalImage = source;
+        });
+    
+        twgl.resizeCanvasToDisplaySize(gl.canvas);
+        gl.viewport(0, 0, resolution.x, resolution.y);
+    
+        gl.clearColor(0, 0, 0, 0);
+        gl.clear(gl.COLOR_BUFFER_BIT);
+    
+        gl.useProgram(programInfo.program);
+    
+        twgl.setUniforms(programInfo, {
+            u_originalImage: originalTexture,
+            u_resolution: resolution
+        });
+    
         requestAnimationFrame(render);
+        
+        function render() {
+            twgl.setBuffersAndAttributes(gl, programInfo, bufferInfo);
+            twgl.setUniforms(programInfo, { u_offset: [depthOffset.x, depthOffset.y], });
+            twgl.drawBufferInfo(gl, bufferInfo);
+            requestAnimationFrame(render);
+        }
     }
 }
 
-main();
+const test = new imageCanvas("Images/cc_landscape - 2.png", document.querySelector("#canvasContainer"));
+test.main();
+
+setInterval (mouseRender, 1000 / 60);

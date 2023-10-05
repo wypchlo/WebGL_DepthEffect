@@ -4,13 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="style.css">
-    <title>Document</title>
-</head>
-<body>
-    <div id="positionVisualizer">
-        <div></div>
-    </div>
-    <canvas id="canvas"></canvas>
+    <title>DepthEffect</title>
+
+    <!-- SHADERS -->
 
     <script id="vertexShader" type="x-shader/x-vertex">
         attribute vec2 position;
@@ -33,7 +29,6 @@
         precision mediump float;
 
         uniform vec2 u_offset;
-
         uniform sampler2D u_originalImage;
 
         varying vec2 v_texcoord;
@@ -49,9 +44,16 @@
             gl_FragColor = texture2D(u_originalImage, (transformedTexCoord + parallax));
         }
     </script>
+</head>
+
+<body>
+    <div id="canvasContainer"></div>
+
+    <!-- SCRIPTS -->
 
     <script src="https://cdn.rawgit.com/greggman/twgl.js/master/dist/4.x/twgl-full.min.js"></script>
     <script src="https://webglfundamentals.org/webgl/resources/m3.js"></script>
+    <script src="positions.js"></script>
     <script src="main.js"></script>
 </body>
 </html>
