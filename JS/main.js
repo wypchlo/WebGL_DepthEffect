@@ -27,8 +27,7 @@ function mouseRender(){
 }
 
 
-class imageCanvas 
-{
+class imageCanvas {
     constructor(imagePath, container){
         this.imagePath = imagePath,
         this.container = container
@@ -44,13 +43,12 @@ class imageCanvas
         this.canvas.height = resolution.y;
     }
 
-    initializeWebGL(){
+    initializeWebGL() {
         this.gl = this.canvas.getContext("webgl");
-        if (!this.gl)
-            console.error("WEBGL NOT SUPPORTED");
+        if (!this.gl) console.error("WEBGL NOT SUPPORTED");
     }
 
-    main(){
+    start() {
         this.create();
         this.initializeWebGL();
         this.setSize();
@@ -58,14 +56,7 @@ class imageCanvas
         const gl = this.gl;
         const programInfo = twgl.createProgramInfo(gl, ["vertexShader", "fragmentShader"]);
         const bufferInfo = twgl.primitives.createXYQuadBufferInfo(gl);
-    
-        let originalImage = { width: 1, height: 1 };
-        const originalTexture = twgl.createTexture(gl, {
-            src: this.imagePath, 
-            crossOrigin: '',
-        }, (err, texture, source) => {
-            originalImage = source;
-        });
+        const originalTexture = twgl.createTexture(gl, { src: this.imagePath });
     
         twgl.resizeCanvasToDisplaySize(gl.canvas);
         gl.viewport(0, 0, resolution.x, resolution.y);
@@ -91,7 +82,7 @@ class imageCanvas
     }
 }
 
-const test = new imageCanvas("Images/cc_landscape - 2.png", document.querySelector("#canvasContainer"));
-test.main();
-
 setInterval (mouseRender, 1000 / 60);
+
+const test = new imageCanvas("Images/cc_landscape - 2.png", document.querySelector("#canvasContainer"));
+test.start();
