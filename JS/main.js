@@ -80,6 +80,9 @@ class ImageCanvas {
         gl.viewport(0, 0, RESOLUTION.x, RESOLUTION.y);
     
         gl.clearColor(0, 0, 0, 0);
+        gl.disable(gl.DEPTH_TEST);
+        gl.enable(gl.BLEND);
+        gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
         gl.clear(gl.COLOR_BUFFER_BIT);
     
         gl.useProgram(programInfo.program);
@@ -105,8 +108,10 @@ function main() {
     const depth = new Depth(1.5, new Vector2(0, 0));
     depth.initialize();
 
-    const imageCanvas = new ImageCanvas("Images/cc_landscape - 2.png", document.querySelector("#canvasContainer"), depth);
-    imageCanvas.start();
+    for (let i = positions.length - 1; i >= 0; i--) {
+        const imageCanvas = new ImageCanvas(`${folderPath}/${images[i]}`, document.querySelector("#canvasContainer"), depth);
+        imageCanvas.start(); 
+    }
 }
 
 main();
