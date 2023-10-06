@@ -8,4 +8,9 @@ class Vector2 {
         this.x = (1 - amt) * this.x + amt * end.x;
         this.y = (1 - amt) * this.y + amt * end.y;
     }
+
+    set(x, y) {
+        this.x = x;
+        this.y = y;
+    }
 }

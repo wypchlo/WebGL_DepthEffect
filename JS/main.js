@@ -1,36 +1,32 @@
 "use strict";
 
-function createVector2(x, y){
-    return {x: x, y: y};
+const RESOLUTION = new Vector2(window.innerHeight / 9 * 16, window.innerHeight);
+
+class Depth {
+    constructor(strength, offset) {
+        this.strength = strength;
+        this.mousePos = new Vector2(0, 0);
+        this.normalizedOffset = new Vector2(1, 1);
+        this.offset = new Vector2(1, 1);
+    }
+
+    mouseRender(){
+        this.offset.lerp(this.mousePos, 0.1);
+        this.normalizedOffset.x = (this.offset.x / RESOLUTION.x - .5) * (this.strength / 100);
+        this.normalizedOffset.y = (this.offset.y / RESOLUTION.y - .5) * (this.strength / 100);
+    }
+
+    initialize() {
+        document.addEventListener('mousemove', (event) => this.mousePos.set(event.clientX, event.clientY));
+        setInterval (this.mouseRender.bind(this), 1000 / 60);
+    }    
 }
 
-const resolution = createVector2(window.innerHeight / 9 * 16, window.innerHeight);
-let offset = createVector2(window.innerWidth / 2, window.innerHeight / 2)
-let depthOffset = createVector2(window.innerWidth / 2, window.innerHeight / 2);
-let mousePos = createVector2(0, 0);
-const depthOffsetStrength = 1.5;
-
-document.addEventListener('mousemove', (event) => {
-    mousePos.x = event.clientX;
-    mousePos.y = event.clientY;
-});
-
-function lerp(start, end, amt){
-    return (1 - amt) * start + amt * end
-}
-
-function mouseRender(){
-    offset.x = lerp(offset.x, mousePos.x, 0.1);
-    offset.y = lerp(offset.y, mousePos.y, 0.1);
-    depthOffset.x = (offset.x / resolution.x - .5) * (depthOffsetStrength / 100);
-    depthOffset.y = (offset.y / resolution.y - .5) * (depthOffsetStrength / 100);
-}
-
-
-class imageCanvas {
-    constructor(imagePath, container){
+class ImageCanvas {
+    constructor(imagePath, container, depth){
         this.imagePath = imagePath,
-        this.container = container
+        this.container = container,
+        this.depth = depth
     }
 
     create(){
@@ -39,8 +35,8 @@ class imageCanvas {
     }
 
     setSize() {
-        this.canvas.width = resolution.x;
-        this.canvas.height = resolution.y;
+        this.canvas.width = RESOLUTION.x;
+        this.canvas.height = RESOLUTION.y;
     }
 
     initializeWebGL() {
@@ -59,7 +55,7 @@ class imageCanvas {
         const originalTexture = twgl.createTexture(gl, { src: this.imagePath });
     
         twgl.resizeCanvasToDisplaySize(gl.canvas);
-        gl.viewport(0, 0, resolution.x, resolution.y);
+        gl.viewport(0, 0, RESOLUTION.x, RESOLUTION.y);
     
         gl.clearColor(0, 0, 0, 0);
         gl.clear(gl.COLOR_BUFFER_BIT);
@@ -68,21 +64,31 @@ class imageCanvas {
     
         twgl.setUniforms(programInfo, {
             u_originalImage: originalTexture,
-            u_resolution: resolution
+            u_resolution: RESOLUTION
         });
     
-        requestAnimationFrame(render);
+        
+        requestAnimationFrame(render.bind(this));
         
         function render() {
             twgl.setBuffersAndAttributes(gl, programInfo, bufferInfo);
-            twgl.setUniforms(programInfo, { u_offset: [depthOffset.x, depthOffset.y], });
+            twgl.setUniforms(programInfo, { u_offset: [this.depth.normalizedOffset.x, this.depth.normalizedOffset.y]});
             twgl.drawBufferInfo(gl, bufferInfo);
-            requestAnimationFrame(render);
+            requestAnimationFrame(render.bind(this));
         }
     }
 }
 
-setInterval (mouseRender, 1000 / 60);
+function main() {
+    let offset = new Vector2(window.innerWidth / 2, window.innerHeight / 2)
+    let depthOffset = new Vector2(window.innerWidth / 2, window.innerHeight / 2);
+    let mousePos = new Vector2(0, 0);
+    const depthOffsetStrength = 1.5;
 
-const test = new imageCanvas("Images/cc_landscape - 2.png", document.querySelector("#canvasContainer"));
-test.start();
+    const depth = new Depth(1.5, new Vector2(0, 0));
+    depth.initialize();
+    const test = new ImageCanvas("Images/cc_landscape - 2.png", document.querySelector("#canvasContainer"), depth);
+    test.start();
+}
+
+main();
