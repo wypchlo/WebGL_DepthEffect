@@ -1,6 +1,5 @@
-"use strict";
-
 const RESOLUTION = new Vector2(window.innerHeight / 9 * 16, window.innerHeight);
+const DEFAULT_RESOLUTION = new Vector2(1366, 786);
 
 class Depth {
     constructor(strength, offset) {
@@ -26,13 +25,36 @@ class ImageCanvas {
     constructor(imagePath, container, depth){
         this.imagePath = imagePath,
         this.container = container,
-        this.depth = depth
+        this.depth = depth,
+        this.multiplier
     }
 
     create(){
         this.canvas = document.createElement("canvas");
         this.container.appendChild(this.canvas);
     }
+
+    /*getMultiplier () {
+        const img = new Image();
+        img.src = this.imagePath;
+         const vector = new Promise ((resolve, reject) => {
+            try {
+                img.addEventListener("load", () => {
+                    const vector = new Vector2(RESOLUTION.x / DEFAULT_RESOLUTION.x, RESOLUTION.y / DEFAULT_RESOLUTION.y);
+                    resolve({
+                        err: false,
+                        vector: vector
+                    })
+                })
+            } catch (err) {
+                reject({
+                    err: true,
+                    msg: err
+                })
+            }
+         })
+        
+    }*/
 
     setSize() {
         this.canvas.width = RESOLUTION.x;
@@ -80,15 +102,11 @@ class ImageCanvas {
 }
 
 function main() {
-    let offset = new Vector2(window.innerWidth / 2, window.innerHeight / 2)
-    let depthOffset = new Vector2(window.innerWidth / 2, window.innerHeight / 2);
-    let mousePos = new Vector2(0, 0);
-    const depthOffsetStrength = 1.5;
-
     const depth = new Depth(1.5, new Vector2(0, 0));
     depth.initialize();
-    const test = new ImageCanvas("Images/cc_landscape - 2.png", document.querySelector("#canvasContainer"), depth);
-    test.start();
+
+    const imageCanvas = new ImageCanvas("Images/cc_landscape - 2.png", document.querySelector("#canvasContainer"), depth);
+    imageCanvas.start();
 }
 
 main();
