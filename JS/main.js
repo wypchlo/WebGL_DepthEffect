@@ -1,5 +1,6 @@
 const RESOLUTION = new Vector2(window.innerHeight / 9 * 16, window.innerHeight);
-const DEFAULT_RESOLUTION = new Vector2(1366, 786);
+const RESOLUTION_MULTIPLIER = new Vector2(RESOLUTION.x / 1366, RESOLUTION.y / 786);
+const canvasContainer = document.querySelector("#canvasContainer");
 
 class Depth {
     constructor(strength, offset) {
@@ -29,46 +30,28 @@ class ImageCanvas {
         this.multiplier
     }
 
-    create(){
-        this.canvas = document.createElement("canvas");
-        this.container.appendChild(this.canvas);
+    setPosition(x, y) {
+        this.canvas.style.left = `${x / 1366 * 100}%`;
+        this.canvas.style.bottom = `${y / 768 * 100}%`;
     }
-
-    /*getMultiplier () {
-        const img = new Image();
-        img.src = this.imagePath;
-         const vector = new Promise ((resolve, reject) => {
-            try {
-                img.addEventListener("load", () => {
-                    const vector = new Vector2(RESOLUTION.x / DEFAULT_RESOLUTION.x, RESOLUTION.y / DEFAULT_RESOLUTION.y);
-                    resolve({
-                        err: false,
-                        vector: vector
-                    })
-                })
-            } catch (err) {
-                reject({
-                    err: true,
-                    msg: err
-                })
-            }
-         })
-        
-    }*/
 
     setSize() {
-        this.canvas.width = RESOLUTION.x;
-        this.canvas.height = RESOLUTION.y;
-    }
-
-    initializeWebGL() {
-        this.gl = this.canvas.getContext("webgl");
-        if (!this.gl) console.error("WEBGL NOT SUPPORTED");
+        const img = new Image();
+        img.src = this.imagePath;
+        img.addEventListener("load", () => {
+            this.canvas.width = img.width * RESOLUTION_MULTIPLIER.x;
+            this.canvas.height = img.height / 2 * RESOLUTION_MULTIPLIER.y;
+            twgl.resizeCanvasToDisplaySize(this.gl.canvas);
+            this.gl.viewport(0, 0, this.canvas.width, this.canvas.height);
+        });
     }
 
     start() {
-        this.create();
-        this.initializeWebGL();
+        this.canvas = document.createElement("canvas");
+        this.container.appendChild(this.canvas);
+        this.gl = this.canvas.getContext("webgl", {premultipliedAlpha: false});
+        if (!this.gl) console.error("WEBGL NOT SUPPORTED");
+
         this.setSize();
     
         const gl = this.gl;
@@ -76,11 +59,7 @@ class ImageCanvas {
         const bufferInfo = twgl.primitives.createXYQuadBufferInfo(gl);
         const originalTexture = twgl.createTexture(gl, { src: this.imagePath });
     
-        twgl.resizeCanvasToDisplaySize(gl.canvas);
-        gl.viewport(0, 0, RESOLUTION.x, RESOLUTION.y);
-    
         gl.clearColor(0, 0, 0, 0);
-        gl.disable(gl.DEPTH_TEST);
         gl.enable(gl.BLEND);
         gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
         gl.clear(gl.COLOR_BUFFER_BIT);
@@ -109,8 +88,9 @@ function main() {
     depth.initialize();
 
     for (let i = positions.length - 1; i >= 0; i--) {
-        const imageCanvas = new ImageCanvas(`${folderPath}/${images[i]}`, document.querySelector("#canvasContainer"), depth);
+        const imageCanvas = new ImageCanvas(`${folderPath}/${filePrefix} - ${i + 1}.png`, canvasContainer, depth);
         imageCanvas.start(); 
+        imageCanvas.setPosition(positions[i].x, positions[i].y);
     }
 }
 

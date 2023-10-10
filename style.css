@@ -1,8 +1,17 @@
-body{
+body, html{
     margin: 0px;
     overflow: hidden;
+    height: 100%;
+}
+
+#canvasContainer{
+    position: relative;
+    aspect-ratio: 16 / 9;
+    height: 100%;
 }
 
 canvas{
-    position:absolute;
+    left: 0;
+    bottom: 0;
+    position: absolute;
 }

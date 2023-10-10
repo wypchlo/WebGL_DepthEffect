@@ -2,10 +2,11 @@
 
 const textPositions = 
 `
--108, -71
--126, -45
--57, -60
--230, -189
+-44, -69
+-115, 472
+76, -152
+-177, -153
+-277, -190
 `
 
 const getPositionsFromTxt = (txt) => {
@@ -21,11 +22,5 @@ const positions = getPositionsFromTxt(textPositions);
 
 //path to folder containing the images
 
-const folderPath = "Images";
-const images = 
-[
-    "cc_landscape - 1.png",
-    "cc_landscape - 2.png",
-    "cc_landscape - 3.png",
-    "cc_landscape - 4.png"
-]
+const filePrefix = "sb_landscape";
+const folderPath = "Assets/sb";
