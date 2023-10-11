@@ -30,7 +30,7 @@ class Vector3 {
 }
 
 class File {
-    static getPositionsFromTxt(txt)
+    static getPositions(txt)
     {
         let lines = txt.split("\n");
         let result = [];
@@ -41,8 +41,11 @@ class File {
             if(!positions) continue;
     
             positions = positions.split(", ");
+            for (let position = 0; position < positions.length; position++)
+                positions[position] = Number(positions[position]);
+
             if(positions.length == 2)
-                result.push(new Vector2(positions[0], positions[1])); 
+                result.push(new Vector2(Number(positions[0]), positions[1])); 
             else
                 result.push(new Vector3(positions[0], positions[1], positions[2])); 
         }

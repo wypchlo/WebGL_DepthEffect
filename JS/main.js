@@ -3,7 +3,7 @@ const RESOLUTION_MULTIPLIER = new Vector2(RESOLUTION.x / 1366, RESOLUTION.y / 78
 const canvasContainer = document.querySelector("#canvasContainer");
 
 class Depth {
-    constructor(strength, offset) {
+    constructor(strength) {
         this.strength = strength;
         this.mousePos = new Vector2(0, 0);
         this.normalizedOffset = new Vector2(1, 1);
@@ -49,7 +49,7 @@ class ImageCanvas {
         });
     }
 
-    start() {
+    initialize() {
         this.canvas = document.createElement("canvas");
         this.container.appendChild(this.canvas);
         this.gl = this.canvas.getContext("webgl", {premultipliedAlpha: false});
@@ -90,10 +90,11 @@ function main() {
     const depth = new Depth(1.5, new Vector2(0, 0));
     depth.initialize();
 
-    for (let i = positions.length - 1; i >= 0; i--) {
-        const imageCanvas = new ImageCanvas(`${folderPath}/${filePrefix} - ${i + 1}.png`, canvasContainer, depth);
-        imageCanvas.start();
-        imageCanvas.setPosition(positions[i].x, positions[i].y);
+    for (let index = POSITIONS.length - 1; index >= 0; index--) {
+        const imageCanvas = new ImageCanvas(`${folderPath}/${filePrefix} - ${index + 1}.png`, canvasContainer, depth);
+        imageCanvas.initialize();
+        console.log(`${POSITIONS[index].x} ${DEPTH_RANGE[index].x / DEPTH_RANGE[index].z}`);
+        imageCanvas.setPosition(POSITIONS[index].x /*+ DEPTH_RANGE[index].x / DEPTH_RANGE[index].z*/, POSITIONS[index].y);
     }
 }
 

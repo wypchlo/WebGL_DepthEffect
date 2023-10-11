@@ -18,9 +18,8 @@ const textDepthRange =
 96, 39, 0.75
 `
 
-const POSITIONS = File.getPositionsFromTxt(textPositions);
-const DEPTH_RANGE = File.getPositionsFromTxt(textDepthRange);
-console.log(POSITIONS);
+const POSITIONS = File.getPositions(textPositions);
+const DEPTH_RANGE = File.getPositions(textDepthRange);
 
 const filePrefix = "sb_landscape";
 const folderPath = "Assets/sb";
