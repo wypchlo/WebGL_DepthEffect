@@ -12,7 +12,7 @@ class Depth {
     }
 
     mouseRender(){
-        this.offset.lerp(this.mousePos, 0.1);
+        this.offset.lerp(this.mousePos, 0.05);
         this.normalizedOffset.x = (this.offset.x / RESOLUTION.x - .5);
         this.normalizedOffset.y = (this.offset.y / RESOLUTION.y - .5);
         this.finalOffset.x = this.normalizedOffset.x * (this.strength / 100);
@@ -29,8 +29,7 @@ class ImageCanvas {
     constructor(imagePath, container, depth){
         this.imagePath = imagePath,
         this.container = container,
-        this.depth = depth,
-        this.multiplier
+        this.depth = depth
     }
 
     setPosition(x, y) {
@@ -89,12 +88,22 @@ class ImageCanvas {
 function main() {
     const depth = new Depth(1.5, new Vector2(0, 0));
     depth.initialize();
+    
+    const containerChildren = [];
 
     for (let index = POSITIONS.length - 1; index >= 0; index--) {
         const imageCanvas = new ImageCanvas(`${folderPath}/${filePrefix} - ${index + 1}.png`, canvasContainer, depth);
         imageCanvas.initialize();
-        console.log(`${POSITIONS[index].x} ${DEPTH_RANGE[index].x / DEPTH_RANGE[index].z}`);
-        imageCanvas.setPosition(POSITIONS[index].x /*+ DEPTH_RANGE[index].x / DEPTH_RANGE[index].z*/, POSITIONS[index].y);
+        imageCanvas.setPosition(POSITIONS[index].x, POSITIONS[index].y);
+        containerChildren.push(imageCanvas);
+
+        setInterval(() => {
+            console.log(imageCanvas.depth.normalizedOffset.y);
+            imageCanvas.setPosition(
+                POSITIONS[index].x + (DEPTH_RANGE[index].x / DEPTH_RANGE[index].z * (.5 - (imageCanvas.depth.normalizedOffset.x + .5))),
+                POSITIONS[index].y + (DEPTH_RANGE[index].y / DEPTH_RANGE[index].z * (imageCanvas.depth.normalizedOffset.y * 2))
+                );
+        }, 1000 / 60);
     }
 }
 
