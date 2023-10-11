@@ -14,3 +14,17 @@ class Vector2 {
         this.y = y;
     }
 }
+
+class Vector3 {
+    constructor(vector) {
+        this.x = vector[0];
+        this.y = vector[1];
+        this.z = vector[2];
+    }
+
+    set(vector) {
+        this.x = vector[0];
+        this.y = vector[1];
+        this.z = vector[2];
+    }
+}
