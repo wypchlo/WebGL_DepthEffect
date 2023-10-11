@@ -9,18 +9,18 @@ const textPositions =
 -277, -190
 `
 
-const getPositionsFromTxt = (txt) => {
-    let a = txt.split("\n");
-    let b = [];
-    for (let i = 0; i <= a.length; i++){
-        if(a[i]) b.push(new Vector2(a[i].split(", ")[0], a[i].split(", ")[1])); 
-    }
-    return b.reverse();
-}
+const textDepthRange = 
+`
+85, 91, 8
+85, 91, 4
+85, 91, 3
+143, 81, 2
+96, 39, 0.75
+`
 
-const positions = getPositionsFromTxt(textPositions);
-
-//path to folder containing the images
+const POSITIONS = File.getPositionsFromTxt(textPositions);
+const DEPTH_RANGE = File.getPositionsFromTxt(textDepthRange);
+console.log(POSITIONS);
 
 const filePrefix = "sb_landscape";
 const folderPath = "Assets/sb";

@@ -7,13 +7,16 @@ class Depth {
         this.strength = strength;
         this.mousePos = new Vector2(0, 0);
         this.normalizedOffset = new Vector2(1, 1);
+        this.finalOffset = new Vector2(1, 1);
         this.offset = new Vector2(1, 1);
     }
 
     mouseRender(){
         this.offset.lerp(this.mousePos, 0.1);
-        this.normalizedOffset.x = (this.offset.x / RESOLUTION.x - .5) * (this.strength / 100);
-        this.normalizedOffset.y = (this.offset.y / RESOLUTION.y - .5) * (this.strength / 100);
+        this.normalizedOffset.x = (this.offset.x / RESOLUTION.x - .5);
+        this.normalizedOffset.y = (this.offset.y / RESOLUTION.y - .5);
+        this.finalOffset.x = this.normalizedOffset.x * (this.strength / 100);
+        this.finalOffset.y = this.normalizedOffset.y * (this.strength / 100);
     }
 
     initialize() {
@@ -76,7 +79,7 @@ class ImageCanvas {
         
         function render() {
             twgl.setBuffersAndAttributes(gl, programInfo, bufferInfo);
-            twgl.setUniforms(programInfo, { u_offset: [this.depth.normalizedOffset.x, this.depth.normalizedOffset.y]});
+            twgl.setUniforms(programInfo, { u_offset: [this.depth.finalOffset.x, this.depth.finalOffset.y]});
             twgl.drawBufferInfo(gl, bufferInfo);
             requestAnimationFrame(render.bind(this));
         }
@@ -89,7 +92,7 @@ function main() {
 
     for (let i = positions.length - 1; i >= 0; i--) {
         const imageCanvas = new ImageCanvas(`${folderPath}/${filePrefix} - ${i + 1}.png`, canvasContainer, depth);
-        imageCanvas.start(); 
+        imageCanvas.start();
         imageCanvas.setPosition(positions[i].x, positions[i].y);
     }
 }
